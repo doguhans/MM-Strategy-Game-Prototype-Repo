@@ -11,18 +11,18 @@ public class PlayerListingsMenu : MonoBehaviourPunCallbacks
     [SerializeField] private Transform _content;
     [SerializeField] private PlayerListing _playerListing;
 
-   // [SerializeField] private Text _readyUpText;
+    [SerializeField] private Text _readyUpText;
 
     private List<PlayerListing> _listings = new List<PlayerListing>();
     private RoomsCanvases _roomsCanvases;
 
-   // private bool _ready =false;
+    private bool _ready =false;
 
 
     public override void OnEnable()
     {   
         base.OnEnable();
-    //    SetReadyUp(false);
+        SetReadyUp(false);
         GetCurrentRoomPlayers();
     }
 
@@ -40,15 +40,15 @@ public class PlayerListingsMenu : MonoBehaviourPunCallbacks
         _roomsCanvases = canvases;
     }
 
- /*   private void SetReadyUp(bool state)
+    private void SetReadyUp(bool state)
     {
         _ready = state;
         if(_ready)
-        { _readyUpText.text = "Ready";}
+        { _readyUpText.text = "R";}
         else
-           { _readyUpText.text = "Not-Ready";}
+        { _readyUpText.text = "N";}
     }
-    */
+    
     private void GetCurrentRoomPlayers()
     {
         if(!PhotonNetwork.IsConnected)
@@ -80,19 +80,20 @@ public class PlayerListingsMenu : MonoBehaviourPunCallbacks
         }
     }
 
- /*  public override void OnMasterClientSwitched(Player newMasterClient)
-    {
+   public override void OnMasterClientSwitched(Player newMasterClient)
+    {   
+        //1'st control point whether to understand if client is ready or not... For instantaneous start game option, this loop can be commented out
         _roomsCanvases.CurrentRoomCanvas.LeaveRoomMenu.OnClick_LeaveRoom();
     }
-*/    
+    
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
 
        AddPlayerListing(newPlayer);
     }
+
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-
         int index = _listings.FindIndex(x => x.Player == otherPlayer);
         if (index != -1)
         {
@@ -103,8 +104,42 @@ public class PlayerListingsMenu : MonoBehaviourPunCallbacks
 
     public void OnClick_StartGame()
     {
-        if(PhotonNetwork.IsMasterClient){
+        if(PhotonNetwork.IsMasterClient)
+        {   
+
+            // 2'nd control point whether to understand if client is ready or not... For instantaneous start game option, this loop can be commented out or deleted 
+            // for (int i = 0; i < _listings.Count; i++)
+            // {
+            //     if(_listings[i].Player != PhotonNetwork.LocalPlayer)
+            //     {
+            //         if(!_listings[i].Ready)
+            //         return;
+            //     }
+            // }
+
+            PhotonNetwork.CurrentRoom.IsOpen = false;
+            PhotonNetwork.CurrentRoom.IsVisible = false;
             PhotonNetwork.LoadLevel(1);
         }
+    }
+
+    public void OnClick_ReadyUp()
+    {
+        if(!PhotonNetwork.IsMasterClient)
+        {
+            SetReadyUp(!_ready);
+            base.photonView.RPC("RPC_ChangeReadyState", RpcTarget.MasterClient,PhotonNetwork.LocalPlayer, _ready);
+    //      base.photonView.RpcSecure("RPC_ChangeReadyState", RpcTarget.MasterClient,true ,PhotonNetwork.LocalPlayer, _ready);  for secure usecase with more band width usage...
+    //      PhotonNetwork.RemoveRPCs()
+        }
+    }
+
+    [PunRPC]
+    private void RPC_ChangeReadyState(Player player, bool ready)
+    {
+        int index = _listings.FindIndex(x => x.Player == player);
+        if (index != -1)
+            _listings[index].Ready = ready;
+        
     }
 }
