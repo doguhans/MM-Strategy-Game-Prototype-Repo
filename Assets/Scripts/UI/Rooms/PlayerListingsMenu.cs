@@ -105,17 +105,17 @@ public class PlayerListingsMenu : MonoBehaviourPunCallbacks
     public void OnClick_StartGame()
     {
         if(PhotonNetwork.IsMasterClient)
-        {   
-
+        {
+            //READY CHECK (CLIENT SIDE)
             // 2'nd control point whether to understand if client is ready or not... For instantaneous start game option, this loop can be commented out or deleted 
-            // for (int i = 0; i < _listings.Count; i++)
-            // {
-            //     if(_listings[i].Player != PhotonNetwork.LocalPlayer)
-            //     {
-            //         if(!_listings[i].Ready)
-            //         return;
-            //     }
-            // }
+            for (int i = 0; i < _listings.Count; i++)
+            {
+                if(_listings[i].Player != PhotonNetwork.LocalPlayer)
+                {
+                    if(!_listings[i].Ready)
+                    return;
+                }
+            }
 
             PhotonNetwork.CurrentRoom.IsOpen = false;
             PhotonNetwork.CurrentRoom.IsVisible = false;
