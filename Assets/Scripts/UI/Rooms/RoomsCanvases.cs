@@ -10,6 +10,11 @@ public class RoomsCanvases : MonoBehaviour
     [SerializeField] private CurrentRoomCanvas _currentRoomCanvas;
     public CurrentRoomCanvas CurrentRoomCanvas {get { return _currentRoomCanvas; } }
 
+    
+    // [SerializeField] private CharacterSelection _characterSelectionCanvas;
+    // public CharacterSelection CharacterSelectionCanvas {get { return _characterSelectionCanvas; } }
+
+
     private void Awake()
     {
         FirstInitialize();
@@ -19,5 +24,6 @@ public class RoomsCanvases : MonoBehaviour
     {
         CreateOrJoinRoomCanvas.FirstInitialize(this);
         CurrentRoomCanvas.FirstInitialize(this);
+     //   CharacterSelectionCanvas.FirstInitialize(this);
     }
 }

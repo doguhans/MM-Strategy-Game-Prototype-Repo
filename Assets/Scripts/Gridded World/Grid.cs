@@ -6,9 +6,10 @@ public class Grid : MonoBehaviour
     public LayerMask unwalkableMask;
     public Vector2 gridWorldSize;
     public float nodeRadius;
-    public Transform player; // For debugging - to visualize the grid and nodes in Unity editor
-
+    public float distanceBetweenNodes;
+    
     Node[,] grid;
+
     float nodeDiameter;
     int gridSizeX, gridSizeY;
 
@@ -36,9 +37,77 @@ public class Grid : MonoBehaviour
         }
     }
 
-    public List<Node> GetNeighbours(Node node)
+    public List<Node> FindPath(Vector3 startPos, Vector3 targetPos)
     {
-        List<Node> neighbours = new List<Node>();
+        Node startNode = NodeFromWorldPoint(startPos);
+        Node targetNode = NodeFromWorldPoint(targetPos);
+
+        List<Node> openSet = new List<Node>();
+        HashSet<Node> closedSet = new HashSet<Node>();
+        openSet.Add(startNode);
+
+        while (openSet.Count > 0)
+        {
+            Node currentNode = openSet[0];
+            for (int i = 1; i < openSet.Count; i++)
+            {
+                if (openSet[i].FCost < currentNode.FCost || openSet[i].FCost == currentNode.FCost && openSet[i].hCost < currentNode.hCost)
+                {
+                    currentNode = openSet[i];
+                }
+            }
+
+            openSet.Remove(currentNode);
+            closedSet.Add(currentNode);
+
+            if (currentNode == targetNode)
+            {
+                return RetracePath(startNode, targetNode);
+            }
+
+            foreach (Node neighbor in GetNeighbors(currentNode))
+            {
+                if (!neighbor.walkable || closedSet.Contains(neighbor))
+                {
+                    continue;
+                }
+
+                int newCostToNeighbor = currentNode.gCost + GetDistance(currentNode, neighbor);
+                if (newCostToNeighbor < neighbor.gCost || !openSet.Contains(neighbor))
+                {
+                    neighbor.gCost = newCostToNeighbor;
+                    neighbor.hCost = GetDistance(neighbor, targetNode);
+                    neighbor.parent = currentNode;
+
+                    if (!openSet.Contains(neighbor))
+                    {
+                        openSet.Add(neighbor);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    List<Node> RetracePath(Node startNode, Node endNode)
+    {
+        List<Node> path = new List<Node>();
+        Node currentNode = endNode;
+
+        while (currentNode != startNode)
+        {
+            path.Add(currentNode);
+            currentNode = currentNode.parent;
+        }
+        path.Reverse();
+
+        return path;
+    }
+
+    List<Node> GetNeighbors(Node node)
+    {
+        List<Node> neighbors = new List<Node>();
 
         for (int x = -1; x <= 1; x++)
         {
@@ -52,15 +121,14 @@ public class Grid : MonoBehaviour
 
                 if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
                 {
-                    neighbours.Add(grid[checkX, checkY]);
+                    neighbors.Add(grid[checkX, checkY]);
                 }
             }
         }
-
-        return neighbours;
+        return neighbors;
     }
 
-    public Node NodeFromWorldPoint(Vector3 worldPosition)
+    Node NodeFromWorldPoint(Vector3 worldPosition)
     {
         float percentX = (worldPosition.x + gridWorldSize.x / 2) / gridWorldSize.x;
         float percentY = (worldPosition.z + gridWorldSize.y / 2) / gridWorldSize.y;
@@ -69,47 +137,40 @@ public class Grid : MonoBehaviour
 
         int x = Mathf.RoundToInt((gridSizeX - 1) * percentX);
         int y = Mathf.RoundToInt((gridSizeY - 1) * percentY);
-
         return grid[x, y];
     }
 
-    // For debugging - visualize the grid and nodes
-    void OnDrawGizmos()
+    int GetDistance(Node nodeA, Node nodeB)
     {
-        Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, 1, gridWorldSize.y));
+        int distX = Mathf.Abs(nodeA.gridX - nodeB.gridX);
+        int distY = Mathf.Abs(nodeA.gridY - nodeB.gridY);
 
-        if (grid != null && player != null)
+        if (distX > distY)
+            return 14 * distY + 10 * (distX - distY);
+        return 14 * distX + 10 * (distY - distX);
+    }
+
+    public class Node
+    {
+        public bool walkable;
+        public Vector3 worldPosition;
+        public int gridX;
+        public int gridY;
+        public int gCost;
+        public int hCost;
+        public Node parent;
+
+        public Node(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY)
         {
-            foreach (Node n in grid)
-            {
-                Gizmos.color = (n.walkable) ? Color.white : Color.red;
-                Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - 0.1f));
-            }
+            walkable = _walkable;
+            worldPosition = _worldPos;
+            gridX = _gridX;
+            gridY = _gridY;
         }
-    }
-}
 
-public class Node
-{
-    public bool walkable;
-    public Vector3 worldPosition;
-    public int gridX;
-    public int gridY;
-
-    public int gCost;
-    public int hCost;
-    public Node parent;
-
-    public Node(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY)
-    {
-        walkable = _walkable;
-        worldPosition = _worldPos;
-        gridX = _gridX;
-        gridY = _gridY;
-    }
-
-    public int fCost
-    {
-        get { return gCost + hCost; }
+        public int FCost
+        {
+            get { return gCost + hCost; }
+        }
     }
 }

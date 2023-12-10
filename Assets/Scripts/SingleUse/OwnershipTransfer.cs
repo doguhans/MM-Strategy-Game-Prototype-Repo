@@ -23,7 +23,7 @@ public class OwnershipTransfer : MonoBehaviourPun, IPunOwnershipCallbacks
 
 
         // based on need this line can be commented out so that character transfer by request can be accepted.
-      //  base.photonView.TransferOwnership(requestingPlayer); 
+        base.photonView.TransferOwnership(requestingPlayer); 
     }
 
     public void OnOwnershipTransfered(PhotonView targetView, Player previousOwner)
