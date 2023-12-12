@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 32
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: MasterManager
   m_EditorClassIdentifier: 
   _gameSettings: {fileID: 11400000, guid: 4918d9b1d0de64d41808eeab733178e6, type: 2}
-  _networkedPrefabs: []
+  _networkedPrefabs:
+  - Prefab: {fileID: 5442011943723879206, guid: 938a9ee1b33812a4fa8711fc5c5ab4a9, type: 3}
+    Path: Prefabs/Ch1

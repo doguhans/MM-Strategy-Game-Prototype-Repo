@@ -3258,7 +3258,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter text...
+  m_Text: Enter the room name to be created...
 --- !u!222 &1955327632
 CanvasRenderer:
   m_ObjectHideFlags: 0

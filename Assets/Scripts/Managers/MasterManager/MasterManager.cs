@@ -20,9 +20,12 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
     {
         foreach(NetworkedPrefab networkedPrefab in Instance._networkedPrefabs)
         {
+           // Debug.Log("GameObject reference: " + obj.name);
+           // Debug.Log("Prefab reference: " + networkedPrefab.Prefab.name);
+
             if(networkedPrefab.Prefab == obj)
             {
-                if(networkedPrefab.Prefab == obj){
+                if(networkedPrefab.Path != string.Empty){
                 GameObject result = PhotonNetwork.Instantiate(networkedPrefab.Path,position, rotation);
                 return result;
                 }
@@ -35,7 +38,8 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
         }
         return null;
     }
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+ [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+  // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     public static void PopulateNetworkedPrefabs()
     {
 #if UNITY_EDITOR
