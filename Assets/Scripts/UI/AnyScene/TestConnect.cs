@@ -10,7 +10,7 @@ private void Start() {
 
     Debug.Log("Connecting to Photon Network server...", this);
     PhotonNetwork.SendRate= 20; // by default 20.
-    PhotonNetwork.SerializationRate = 5; //10.
+    PhotonNetwork.SerializationRate = 10; // by default 10.
     PhotonNetwork.AutomaticallySyncScene = true;
     PhotonNetwork.NickName = MasterManager.GameSettings.NickName;
     PhotonNetwork.GameVersion= MasterManager.GameSettings.GameVersion;

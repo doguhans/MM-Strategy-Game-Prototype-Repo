@@ -1,39 +1,56 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-
 
 public class QuickInstantiate : MonoBehaviour
 {
     [SerializeField] private GameObject _prefab;
-     public float offsetXDistance = 3.0f; // Distance between instantiated objects in X axis
+    public float offsetXDistance = 3.0f; // Distance between instantiated objects in X axis
 
     private void Awake()
     {
-        float totalOffsetX = 0f;
+        int maxAttempts = 5; // Maximum attempts to find a valid position
+        float minDistanceSquared = offsetXDistance * offsetXDistance; // Minimum distance squared
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 1; i++)
         {
-            Vector3 position = new Vector3(transform.position.x + totalOffsetX,
-                                           transform.position.y,
-                                           transform.position.z);
+            bool positionFound = false;
+            int attempts = 0;
 
-            MasterManager.NetworkInstantiate(_prefab, position, Quaternion.identity);
+            while (!positionFound && attempts < maxAttempts)
+            {
+                Vector3 position = new Vector3(transform.position.x + Random.Range(-offsetXDistance, offsetXDistance),
+                                               transform.position.y,
+                                               transform.position.z);
 
-            totalOffsetX += offsetXDistance;
+                if (CheckPosition(position, minDistanceSquared)) // Check if the position is valid
+                {
+                    MasterManager.NetworkInstantiate(_prefab, position, Quaternion.identity);
+                    positionFound = true;
+                }
+
+                attempts++;
+            }
         }
     }
-    private bool CheckPosition(Vector3 position)
+
+    private bool CheckPosition(Vector3 position, float minDistanceSquared)
     {
         Collider[] colliders = Physics.OverlapSphere(position, offsetXDistance);
 
         foreach (Collider collider in colliders)
         {
-            // Check if the collider belongs to the same type of prefab or a different one that you want to avoid overlapping with.
-            if (collider.CompareTag("YourTag")) // Replace "YourTag" with the relevant tag of the objects you want to avoid overlapping with.
+            // Check if the collider belongs to the object you want to avoid overlapping with.
+            if (collider.CompareTag("Player")) // Replace "Player" with the relevant tag of the objects you want to avoid overlapping with.
             {
                 return false; // There is an object too close, don't instantiate here
+            }
+
+            // Check distance between instantiated objects
+            float sqrDistance = (position - collider.transform.position).sqrMagnitude;
+            if (sqrDistance < minDistanceSquared)
+            {
+                return false; // Objects are too close, don't instantiate here
             }
         }
 

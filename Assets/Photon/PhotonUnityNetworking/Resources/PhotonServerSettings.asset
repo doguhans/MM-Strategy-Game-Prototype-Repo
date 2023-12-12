@@ -37,6 +37,8 @@ MonoBehaviour:
   - ClickRpc
   - DestroyRpc
   - RPC_ChangeReadyState
+  - InstantiateObject
+  - NetworkInstantiateObject
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
