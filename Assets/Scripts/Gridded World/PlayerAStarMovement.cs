@@ -39,6 +39,7 @@ public class PlayerAStarMovement : MonoBehaviourPun
                     MoveToPosition(targetPosition);
                 }
             }
+           
         }
 
         if (currentPath.Count > 0 && currentPathIndex < currentPath.Count)
